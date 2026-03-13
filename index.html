@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jayasom Content Tracker · NEXA</title>
+<title>Jayasom Content Tracker Â· NEXA</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -176,14 +176,14 @@
   <div class="topnav-left">
     <div>
       <div class="brand-title">Jayasom Wellness Resort</div>
-      <div class="brand-sub">Content Tracker · NEXA Dashboard</div>
+      <div class="brand-sub">Content Tracker Â· NEXA Dashboard</div>
     </div>
     <div class="divider"></div>
     <span id="lastUpdated" class="last-updated"></span>
   </div>
   <div class="topnav-right">
-    <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
-    <span class="live-badge">⬤ Live</span>
+    <button class="refresh-btn" onclick="loadData()">â» Refresh</button>
+    <span class="live-badge">â¬¤ Live</span>
   </div>
 </nav>
 
@@ -192,7 +192,7 @@
   <div class="milestone urgent">
     <span class="milestone-dot"></span>
     <div>
-      <div class="milestone-date">14 MAR 🔴</div>
+      <div class="milestone-date">14 MAR ð´</div>
       <div class="milestone-label">Client Input Due</div>
     </div>
   </div>
@@ -213,7 +213,7 @@
   <div class="milestone golive">
     <span class="milestone-dot"></span>
     <div>
-      <div class="milestone-date">31 MAR 🚀</div>
+      <div class="milestone-date">31 MAR ð</div>
       <div class="milestone-label">Go Live</div>
     </div>
   </div>
@@ -227,14 +227,14 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-section-label">Navigation</div>
     <div class="sidebar-item active" id="nav-overview" onclick="showView('overview')">
-      <span class="icon">🍊</span>
+      <span class="icon">ð</span>
       <span class="label">Dashboard</span>
-      <span class="count" id="cnt-total">—</span>
+      <span class="count" id="cnt-total">â</span>
     </div>
     <div class="sidebar-item" id="nav-all" onclick="showView('all')">
-      <span class="icon">📋</span>
+      <span class="icon">ð</span>
       <span class="label">All Pages</span>
-      <span class="count" id="cnt-all">—</span>
+      <span class="count" id="cnt-all">â</span>
     </div>
     <div class="sidebar-section-label" style="margin-top:12px">Sections</div>
     <div id="sidebarSections"></div>
@@ -249,7 +249,7 @@
   <main class="main" id="mainContent">
     <div class="loading" id="loadingState">
       <div class="spinner"></div>
-      <div class="loading-text">Loading live data from Google Sheets…</div>
+      <div class="loading-text">Loading live data from Google Sheetsâ¦</div>
     </div>
   </main>
 </div>
@@ -257,7 +257,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SHEET_ID = '1Xd8wj_FSewZ2sw_fSD2kMGFhSBPQC4vM';
+const SHEET_ID = '1T3pCaz_QpW-5KU7hknqMrS_5KSCXmKeVV2Ln-poN4UY';
 const SHEET_GID = '1086265078';
 
 let allRows = [];
@@ -265,21 +265,21 @@ let tabGroups = {};
 let stats = {};
 let currentView = 'overview';
 
-// ── COUNTDOWN ─────────────────────────────────────────────
+// ââ COUNTDOWN âââââââââââââââââââââââââââââââââââââââââââââ
 function updateCountdown() {
   const goLive = new Date('2026-03-31T00:00:00');
   const now = new Date();
   const diff = Math.ceil((goLive - now) / (1000 * 60 * 60 * 24));
   const el = document.getElementById('countdown');
   if (diff > 0) el.textContent = `${diff} days to go live`;
-  else if (diff === 0) el.textContent = '🚀 Go Live Today!';
+  else if (diff === 0) el.textContent = 'ð Go Live Today!';
   else el.textContent = `Launched ${Math.abs(diff)}d ago`;
 }
 updateCountdown();
 
-// ── FETCH SHEETS ───────────────────────────────────────────
+// ââ FETCH SHEETS âââââââââââââââââââââââââââââââââââââââââââ
 async function loadData() {
-  showToast('Refreshing data…');
+  showToast('Refreshing dataâ¦');
   try {
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
     const res = await fetch(url);
@@ -358,7 +358,7 @@ function parseAndRender(json) {
   buildTabGroups();
   renderSidebar();
   showView(currentView);
-  showToast('✓ Data loaded');
+  showToast('â Data loaded');
 }
 
 function normalise(raw) {
@@ -410,7 +410,7 @@ function buildTabGroups() {
   });
 }
 
-// ── SIDEBAR ───────────────────────────────────────────────
+// ââ SIDEBAR âââââââââââââââââââââââââââââââââââââââââââââââ
 function renderSidebar() {
   const el = document.getElementById('sidebarSections');
   el.innerHTML = Object.entries(tabGroups).map(([tab, rows]) => {
@@ -427,17 +427,17 @@ function renderSidebar() {
 
 function tabIcon(tab) {
   const map = {
-    'Home':'🏠','About Us':'ℹ️','AMAALA':'🌊','Contact':'📞',
-    'Wellness':'💚','Retreats':'🧘','Treatments':'💆','Activities':'🏃',
-    'Wellness Advisors':'👩‍⚕️','Spaces':'🏛️','Rooms & Villas':'🛏️',
-    'Culinary':'🍽️','Families':'👨‍👩‍👧','Residences':'🏡','Global':'🌐',
-    'Day at AMAALA':'☀️','Retreat Finder':'🔍','Group Activities':'🤝',
-    'Individual Wellness':'🌿','Destinations':'📍',
+    'Home':'ð ','About Us':'â¹ï¸','AMAALA':'ð','Contact':'ð',
+    'Wellness':'ð','Retreats':'ð§','Treatments':'ð','Activities':'ð',
+    'Wellness Advisors':'ð©ââï¸','Spaces':'ðï¸','Rooms & Villas':'ðï¸',
+    'Culinary':'ð½ï¸','Families':'ð¨âð©âð§','Residences':'ð¡','Global':'ð',
+    'Day at AMAALA':'âï¸','Retreat Finder':'ð','Group Activities':'ð¤',
+    'Individual Wellness':'ð¿','Destinations':'ð',
   };
-  return map[tab] || '📄';
+  return map[tab] || 'ð';
 }
 
-// ── VIEWS ─────────────────────────────────────────────────
+// ââ VIEWS âââââââââââââââââââââââââââââââââââââââââââââââââ
 function showView(view) {
   currentView = view;
   // Update sidebar active state
@@ -462,7 +462,7 @@ function showView(view) {
   }, 100);
 }
 
-// ── OVERVIEW ─────────────────────────────────────────────
+// ââ OVERVIEW âââââââââââââââââââââââââââââââââââââââââââââ
 function renderOverview() {
   const tabStats = Object.entries(tabGroups).map(([tab, rows]) => {
     const ap = rows.filter(r => r.status === 'ap').length;
@@ -474,7 +474,7 @@ function renderOverview() {
 
   return `
     <div class="page-title">Content Overview</div>
-    <div class="page-subtitle">Jayasom Wellness Resort · AMAALA, Red Sea — Live content delivery dashboard</div>
+    <div class="page-subtitle">Jayasom Wellness Resort Â· AMAALA, Red Sea â Live content delivery dashboard</div>
 
     <div class="stat-grid">
       ${statCard('Total Pages', stats.total, 'All sections', '', '', true)}
@@ -484,7 +484,7 @@ function renderOverview() {
       ${statCard('Approved', stats.ap || 0, `${stats.pct}% complete`, '#4CAF7D', '#2E8B57')}
     </div>
 
-    <div class="section-header">📊 Progress by Section <div class="section-divider"></div></div>
+    <div class="section-header">ð Progress by Section <div class="section-divider"></div></div>
     <div class="cards-grid">
       ${tabStats.map(t => renderSectionCard(t)).join('')}
     </div>
@@ -523,18 +523,18 @@ function renderSectionCard(t) {
     <div style="text-align:right;font-size:10px;color:var(--muted);margin-bottom:12px">${t.pct}%</div>
     ${displayRows.map(r => `
       <div class="section-row">
-        <span class="page-id">${r.pageId || '—'}</span>
+        <span class="page-id">${r.pageId || 'â'}</span>
         <div style="flex:1;overflow:hidden">
           <div class="page-name">${r.name || r.section}</div>
           ${r.section && r.name ? `<div class="page-section">${r.section}</div>` : ''}
         </div>
         ${pillHtml(r.status)}
       </div>`).join('')}
-    ${hasMore ? `<button class="show-more" onclick="showView('tab-${t.tab}')">↓ Show all ${t.total} rows</button>` : ''}
+    ${hasMore ? `<button class="show-more" onclick="showView('tab-${t.tab}')">â Show all ${t.total} rows</button>` : ''}
   </div>`;
 }
 
-// ── TAB VIEW ─────────────────────────────────────────────
+// ââ TAB VIEW âââââââââââââââââââââââââââââââââââââââââââââ
 function renderTabView(tabName) {
   const rows = tabGroups[tabName] || [];
   const ap = rows.filter(r => r.status === 'ap').length;
@@ -546,7 +546,7 @@ function renderTabView(tabName) {
         <span style="font-size:24px">${tabIcon(tabName)}</span>
         <div class="page-title">${tabName}</div>
       </div>
-      <div class="page-subtitle">${rows.length} pages · ${ap} approved · ${pct}% complete</div>
+      <div class="page-subtitle">${rows.length} pages Â· ${ap} approved Â· ${pct}% complete</div>
       <div class="pbar-track" style="height:10px"><div class="pbar-fill" data-pct="${pct}" style="width:0%"></div></div>
     </div>
     <div class="cards-grid">
@@ -557,18 +557,18 @@ function renderTabView(tabName) {
             ${pillHtml(r.status)}
           </div>
           <div style="font-size:13px;font-weight:600;margin-bottom:3px">${r.name}</div>
-          <div style="font-size:10px;color:var(--muted);margin-bottom:${r.draft ? '10px' : '0'}">${r.section}${r.due ? ' · Due ' + r.due : ''}${r.ownerNexa ? ' · ' + r.ownerNexa : ''}</div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:${r.draft ? '10px' : '0'}">${r.section}${r.due ? ' Â· Due ' + r.due : ''}${r.ownerNexa ? ' Â· ' + r.ownerNexa : ''}</div>
           ${r.draft ? `<div style="font-size:11px;color:#4A3F6B;line-height:1.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${r.draft}</div>` : ''}
         </div>`).join('')}
     </div>`;
 }
 
-// ── ALL PAGES ────────────────────────────────────────────
+// ââ ALL PAGES ââââââââââââââââââââââââââââââââââââââââââââ
 function renderAllPages() {
   return `
     <div class="page-title" style="margin-bottom:16px">All Pages</div>
     <div class="filter-bar">
-      <input id="searchInput" type="text" placeholder="Search page ID, name, section…" oninput="filterTable()">
+      <input id="searchInput" type="text" placeholder="Search page ID, name, sectionâ¦" oninput="filterTable()">
       <select id="statusFilter" onchange="filterTable()">
         <option value="all">All Statuses</option>
         <option value="ns">Not Started</option>
@@ -596,11 +596,11 @@ function buildTableRows(rows) {
   return rows.slice(0, 200).map(r => `<tr>
     <td class="td-id">${r.pageId}</td>
     <td class="td-name">${r.name}</td>
-    <td class="td-muted">${r.section || '—'}</td>
+    <td class="td-muted">${r.section || 'â'}</td>
     <td class="td-muted">${r.tab}</td>
     <td>${pillHtml(r.status)}</td>
-    <td class="td-muted">${r.ownerNexa || '—'}</td>
-    <td class="td-muted">${r.due || '—'}</td>
+    <td class="td-muted">${r.ownerNexa || 'â'}</td>
+    <td class="td-muted">${r.due || 'â'}</td>
   </tr>`).join('');
 }
 
@@ -617,13 +617,13 @@ function filterTable() {
   document.getElementById('filterCount').textContent = filtered.length + ' rows';
 }
 
-// ── HELPERS ───────────────────────────────────────────────
+// ââ HELPERS âââââââââââââââââââââââââââââââââââââââââââââââ
 function pillHtml(status) {
   const map = {
     ns: ['Not Started', 'ns'],
     ip: ['In Progress', 'ip'],
     rv: ['In Review', 'rv'],
-    ap: ['Approved ✓', 'ap'],
+    ap: ['Approved â', 'ap'],
     bk: ['Blocked', 'bk'],
   };
   const [label, cls] = map[status] || map.ns;
@@ -633,7 +633,7 @@ function pillHtml(status) {
 function showError(msg) {
   document.getElementById('mainContent').innerHTML = `
     <div class="loading">
-      <div style="font-size:32px">⚠️</div>
+      <div style="font-size:32px">â ï¸</div>
       <div style="font-size:15px;font-weight:700">Could not load sheet data</div>
       <div class="error-box">${msg}</div>
       <button class="refresh-btn" onclick="loadData()" style="margin-top:8px;padding:10px 24px;font-size:13px">Retry</button>
@@ -647,7 +647,7 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ── INIT ──────────────────────────────────────────────────
+// ââ INIT ââââââââââââââââââââââââââââââââââââââââââââââââââ
 loadData();
 setInterval(loadData, 120000); // auto-refresh every 2 min
 </script>
