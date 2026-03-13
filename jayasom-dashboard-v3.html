@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jayasom — Content Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --purple:#9354FF;--purple-deep:#1A0A3C;--purple-mid:#6B35CC;--purple-light:#E9DDFF;
+  --amber:#D97706;--teal:#0D9488;--red:#DC2626;--green:#16A34A;
+  --ink:#0F0A1E;--mist:#F6F3FF;--stone:#8B7EB0;
+  --card:#FFFFFF;--border:rgba(147,84,255,.12);
+  --sean:#9354FF;--karen:#D97706;--nawaf:#0D9488;
+}
+html{font-size:14px;scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--mist);color:var(--ink);min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed;top:0;left:0;width:220px;height:100vh;
+  background:var(--purple-deep);
+  display:flex;flex-direction:column;
+  padding:28px 0 20px;z-index:100;
+}
+.sidebar-logo{padding:0 22px 28px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo .brand{font-family:'Cormorant Garamond',serif;font-size:1.5rem;
+  font-weight:300;letter-spacing:.18em;color:#fff;text-transform:uppercase}
+.sidebar-logo .sub{font-size:.65rem;letter-spacing:.22em;color:var(--stone);
+  text-transform:uppercase;margin-top:2px}
+.nav{margin-top:24px;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 22px;
+  font-size:.82rem;font-weight:400;color:rgba(255,255,255,.55);
+  cursor:pointer;transition:all .2s;border-left:2px solid transparent}
+.nav-item:hover,.nav-item.active{color:#fff;background:rgba(147,84,255,.15);
+  border-left-color:var(--purple)}
+.nav-item .dot{width:7px;height:7px;border-radius:50%;background:currentColor;
+  opacity:.6;flex-shrink:0}
+.sidebar-footer{padding:16px 22px;border-top:1px solid rgba(255,255,255,.08)}
+.sidebar-footer .label{font-size:.65rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--stone)}
+.sidebar-footer .date{font-size:.78rem;color:rgba(255,255,255,.6);margin-top:3px}
+
+/* MAIN */
+.main{margin-left:220px;padding:32px 36px;min-height:100vh}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
+.topbar h1{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;
+  letter-spacing:.04em;color:var(--purple-deep)}
+.topbar h1 span{color:var(--purple);font-style:italic}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.badge{padding:5px 12px;border-radius:20px;font-size:.72rem;font-weight:500;
+  letter-spacing:.05em;text-transform:uppercase}
+.badge-live{background:rgba(22,163,74,.1);color:var(--green);border:1px solid rgba(22,163,74,.2)}
+.refresh-btn{padding:6px 14px;background:var(--purple);color:#fff;border:none;
+  border-radius:8px;font-size:.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;
+  transition:opacity .2s}
+.refresh-btn:hover{opacity:.85}
+
+/* OVERALL PROGRESS BAND */
+.progress-band{
+  background:var(--purple-deep);border-radius:16px;padding:28px 32px;
+  margin-bottom:28px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:24px;
+  position:relative;overflow:hidden;
+}
+.progress-band::after{
+  content:'';position:absolute;right:-40px;top:-40px;
+  width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle,rgba(147,84,255,.2) 0%,transparent 70%);
+  pointer-events:none;
+}
+.pb-item{}
+.pb-label{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.45);margin-bottom:6px}
+.pb-value{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;color:#fff;line-height:1}
+.pb-value span{font-size:1rem;margin-left:2px;color:rgba(255,255,255,.5)}
+.pb-bar-wrap{margin-top:10px;height:4px;background:rgba(255,255,255,.1);border-radius:4px}
+.pb-bar{height:4px;border-radius:4px;background:var(--purple);transition:width 1s ease}
+.pb-bar.green{background:var(--teal)}
+.pb-bar.amber{background:var(--amber)}
+
+/* WRITER SECTION */
+.writers-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:28px}
+.writer-card{
+  background:var(--card);border-radius:14px;
+  border:1px solid var(--border);padding:20px 22px;
+  position:relative;overflow:hidden;
+}
+.writer-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+}
+.writer-card.sean::before{background:var(--sean)}
+.writer-card.karen::before{background:var(--karen)}
+.writer-card.nawaf::before{background:var(--nawaf)}
+.writer-name{font-size:.78rem;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink);margin-bottom:2px}
+.writer-role{font-size:.72rem;color:var(--stone);margin-bottom:14px}
+.writer-stats{display:flex;gap:12px;margin-bottom:12px}
+.ws-item{flex:1;text-align:center}
+.ws-num{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;line-height:1}
+.ws-num.done{color:var(--green)}
+.ws-num.pending{color:var(--amber)}
+.ws-num.review{color:var(--purple)}
+.ws-lbl{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--stone);margin-top:2px}
+.writer-bar{height:6px;border-radius:6px;background:#F0ECF9;display:flex;overflow:hidden;margin-top:4px}
+.wbar-seg{height:100%;transition:width 1s ease}
+.wbar-done{background:var(--green)}
+.wbar-review{background:var(--purple)}
+.wbar-pending{background:#E9DDFF}
+
+/* SECTION HEADER */
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-hdr h2{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;
+  color:var(--purple-deep)}
+.filter-row{display:flex;gap:8px}
+.filter-btn{padding:5px 12px;border-radius:20px;font-size:.72rem;border:1px solid var(--border);
+  background:var(--card);color:var(--stone);cursor:pointer;transition:all .2s;
+  font-family:'DM Sans',sans-serif}
+.filter-btn:hover,.filter-btn.active{background:var(--purple);color:#fff;border-color:var(--purple)}
+
+/* PAGE CARDS GRID */
+.pages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:32px}
+.page-card{
+  background:var(--card);border-radius:14px;border:1px solid var(--border);
+  padding:18px 20px;cursor:pointer;transition:all .25s;
+  position:relative;
+}
+.page-card:hover{border-color:var(--purple);transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(147,84,255,.1)}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.card-num{font-size:.65rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--stone)}
+.card-figma{font-size:.7rem;color:var(--purple);text-decoration:none;
+  display:flex;align-items:center;gap:4px;opacity:.7;transition:opacity .2s}
+.card-figma:hover{opacity:1}
+.card-name{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;
+  color:var(--purple-deep);margin-bottom:2px;line-height:1.3}
+.card-pid{font-size:.68rem;color:var(--stone);letter-spacing:.06em}
+.card-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;margin-top:8px}
+.owner-tag{padding:2px 8px;border-radius:10px;font-size:.67rem;font-weight:500}
+.owner-tag.sean{background:rgba(147,84,255,.1);color:var(--sean)}
+.owner-tag.karen{background:rgba(217,119,6,.1);color:var(--karen)}
+.owner-tag.nawaf{background:rgba(13,148,136,.1);color:var(--nawaf)}
+.owner-tag.tbc{background:rgba(107,53,204,.08);color:var(--stone)}
+
+/* PROGRESS BAR */
+.progress-wrap{margin-bottom:10px}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.progress-label{font-size:.7rem;color:var(--stone)}
+.progress-pct{font-size:.78rem;font-weight:600;color:var(--purple-deep)}
+.progress-track{height:7px;background:#F0ECF9;border-radius:7px;overflow:hidden}
+.progress-fill{height:100%;border-radius:7px;transition:width 1s ease}
+.pct-0{width:0%;background:#E9DDFF}
+.pct-low{background:linear-gradient(90deg,var(--red),#F87171)}
+.pct-mid{background:linear-gradient(90deg,var(--amber),#FCD34D)}
+.pct-high{background:linear-gradient(90deg,var(--purple),#C084FC)}
+.pct-done{background:linear-gradient(90deg,var(--teal),#34D399)}
+
+.card-sections{display:flex;gap:4px;flex-wrap:wrap}
+.sec-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;
+  title:attr(data-title);cursor:default}
+.sec-dot.approved{background:var(--green)}
+.sec-dot.in-progress{background:var(--purple)}
+.sec-dot.review{background:var(--amber)}
+.sec-dot.blocked{background:var(--red);opacity:.5}
+.sec-dot.not-started{background:#DDD}
+
+/* STATS ROW */
+.card-stats{display:flex;gap:12px;margin-top:10px;padding-top:10px;
+  border-top:1px solid var(--border)}
+.stat-item{display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--stone)}
+.stat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* LEGEND */
+.legend{display:flex;gap:14px;padding:12px 0;margin-bottom:20px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--stone)}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* EMPTY STATE */
+.no-results{text-align:center;padding:60px 20px;color:var(--stone);font-size:.9rem}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.page-card{animation:fadeUp .4s ease both}
+.page-card:nth-child(1){animation-delay:.03s}
+.page-card:nth-child(2){animation-delay:.06s}
+.page-card:nth-child(3){animation-delay:.09s}
+.page-card:nth-child(4){animation-delay:.12s}
+.page-card:nth-child(5){animation-delay:.15s}
+.page-card:nth-child(6){animation-delay:.18s}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(10,5,30,.6);backdrop-filter:blur(4px);
+  z-index:500;display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:20px;width:680px;max-width:95vw;max-height:88vh;
+  overflow-y:auto;box-shadow:0 32px 80px rgba(26,10,60,.25)}
+.modal-hdr{padding:24px 28px 0;position:sticky;top:0;background:#fff;z-index:1}
+.modal-hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;color:var(--purple-deep)}
+.modal-pid{font-size:.72rem;color:var(--stone);letter-spacing:.08em;margin-top:2px}
+.modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);
+  background:none;cursor:pointer;font-size:1rem;color:var(--stone);
+  display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:var(--mist);color:var(--ink)}
+.modal-progress{margin-bottom:0;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.modal-body{padding:20px 28px 28px}
+.section-row{padding:10px 0;border-bottom:1px solid var(--border);display:flex;
+  align-items:flex-start;gap:14px}
+.section-row:last-child{border-bottom:none}
+.sec-status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.sec-info{flex:1}
+.sec-name{font-size:.82rem;font-weight:500;color:var(--ink);margin-bottom:2px}
+.sec-meta{font-size:.72rem;color:var(--stone)}
+.sec-action{display:flex;gap:6px;margin-top:6px}
+.btn-sm{padding:4px 10px;border-radius:8px;font-size:.7rem;font-family:'DM Sans',sans-serif;
+  border:1px solid var(--border);cursor:pointer;transition:all .2s;background:var(--mist);color:var(--ink)}
+.btn-sm:hover{background:var(--purple);color:#fff;border-color:var(--purple)}
+.btn-approve{background:rgba(22,163,74,.08);color:var(--green);border-color:rgba(22,163,74,.2)}
+.btn-approve:hover{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-flag{background:rgba(220,38,38,.06);color:var(--red);border-color:rgba(220,38,38,.18)}
+.btn-flag:hover{background:var(--red);color:#fff;border-color:var(--red)}
+
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:20px 16px}
+  .progress-band{grid-template-columns:1fr 1fr}
+  .writers-row{grid-template-columns:1fr}
+}
+
+/* ── CONTENT OVERVIEW ──────────────────────────────────────── */
+.overview-block{padding:28px 32px 0}
+.overview-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--ink);letter-spacing:-.5px;margin:0 0 2px}
+.overview-sub{font-size:12px;color:#888;margin:0 0 20px;letter-spacing:.2px}
+.overview-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+.ov-card{background:#fff;border-radius:12px;padding:20px 18px 16px;border:1px solid #eee;position:relative;overflow:hidden}
+.ov-card.purple{background:var(--purple-deep);border-color:var(--purple-deep)}
+.ov-card-label{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#aaa;margin:0 0 8px}
+.ov-card.purple .ov-card-label{color:rgba(255,255,255,.7)}
+.ov-card-num{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:700;line-height:1;color:var(--ink);margin:0 0 4px}
+.ov-card.purple .ov-card-num{color:#fff}
+.ov-card-num.grey{color:#aaa}
+.ov-card-num.purple2{color:var(--purple)}
+.ov-card-num.amber{color:#d97706}
+.ov-card-num.green{color:#16a34a}
+.ov-card-note{font-size:10px;color:#bbb;margin:0}
+.ov-card.purple .ov-card-note{color:rgba(255,255,255,.6)}
+
+/* DEADLINE BANNER */
+.deadline-banner{display:flex;align-items:center;gap:20px;background:#fff;border:1px solid #eee;border-radius:12px;padding:14px 20px;margin-bottom:20px}
+.db-item{display:flex;align-items:center;gap:10px;flex:1}
+.db-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.db-dot.red{background:#dc2626}.db-dot.amber{background:#d97706}.db-dot.green{background:#16a34a}.db-dot.purple{background:var(--purple)}
+.db-label{font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#aaa;display:block;margin-bottom:2px}
+.db-date{font-size:12px;font-weight:600;color:var(--ink)}
+.db-note{font-size:10px;color:#aaa}
+.db-divider{width:1px;height:36px;background:#eee}
+.countdown-block{text-align:right;min-width:120px}
+.countdown-num{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--purple);line-height:1}
+.countdown-label{font-size:9px;letter-spacing:.8px;text-transform:uppercase;color:#aaa;margin-top:2px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">Jayasom</div>
+    <div class="sub">Content Dashboard</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item active"><span class="dot"></span> Overview</div>
+    <div class="nav-item"><span class="dot"></span> All Pages</div>
+    <div class="nav-item"><span class="dot"></span> Awaiting Input</div>
+    <div class="nav-item"><span class="dot"></span> In Review</div>
+    <div class="nav-item"><span class="dot"></span> Approved</div>
+    <div class="nav-item"><span class="dot"></span> Writers</div>
+    <div class="nav-item"><span class="dot"></span> Figma Links</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="label">Last updated</div>
+    <div class="date" id="lastUpdated">—</div>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- CONTENT OVERVIEW -->
+  <div class="overview-block">
+    <p class="overview-title">Content Overview</p>
+    <p class="overview-sub">Jayasom Wellness Resort &middot; AMAALA, Red Sea &mdash; Website Content Delivery Portal</p>
+    <div class="deadline-banner">
+      <div class="db-item"><span class="db-dot red"></span><div><span class="db-label">Client Input Due</span><span class="db-date">14 Mar 2026</span><span class="db-note">Karen & Nawaf all blocked sections</span></div></div>
+      <div class="db-divider"></div>
+      <div class="db-item"><span class="db-dot amber"></span><div><span class="db-label">Sean Tier 1 Draft</span><span class="db-date">17 Mar 2026</span><span class="db-note">Home, About, Amaala, Wellness, Retreats</span></div></div>
+      <div class="db-divider"></div>
+      <div class="db-item"><span class="db-dot green"></span><div><span class="db-label">Client Review Due</span><span class="db-date">26 Mar 2026</span><span class="db-note">Approvals & revisions</span></div></div>
+      <div class="db-divider"></div>
+      <div class="db-item"><span class="db-dot purple"></span><div><span class="db-label">Go Live</span><span class="db-date">31 Mar 2026</span><span class="db-note">Full site launch</span></div></div>
+      <div class="db-divider"></div>
+      <div class="countdown-block"><div class="countdown-num" id="days-to-live">—</div><div class="countdown-label">Days to Go Live</div></div>
+    </div>
+    <div class="overview-cards">
+      <div class="ov-card purple">
+        <p class="ov-card-label">Total Pages</p>
+        <p class="ov-card-num" id="ov-total-pages">29</p>
+        <p class="ov-card-note">Static + template instances</p>
+      </div>
+      <div class="ov-card">
+        <p class="ov-card-label">Not Started</p>
+        <p class="ov-card-num grey" id="ov-not-started">—</p>
+        <p class="ov-card-note" id="ov-not-started-pct">— of total sections</p>
+      </div>
+      <div class="ov-card">
+        <p class="ov-card-label">In Progress</p>
+        <p class="ov-card-num purple2" id="ov-in-progress">—</p>
+        <p class="ov-card-note" id="ov-in-progress-pct">— of total sections</p>
+      </div>
+      <div class="ov-card">
+        <p class="ov-card-label">In Review</p>
+        <p class="ov-card-num amber" id="ov-in-review">—</p>
+        <p class="ov-card-note">Needs your input</p>
+      </div>
+      <div class="ov-card">
+        <p class="ov-card-label">Approved</p>
+        <p class="ov-card-num green" id="ov-approved">—</p>
+        <p class="ov-card-note" id="ov-approved-pct">— complete</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="topbar">
+    <h1>Content <span>Progress</span></h1>
+    <div class="topbar-right">
+      <span class="badge badge-live">● Live</span>
+      <button class="refresh-btn" onclick="refresh()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- OVERALL PROGRESS BAND -->
+  <div class="progress-band">
+    <div class="pb-item">
+      <div class="pb-label">Overall Completion</div>
+      <div class="pb-value" id="pct-overall">—<span>%</span></div>
+      <div class="pb-bar-wrap"><div class="pb-bar green" id="bar-overall" style="width:0%"></div></div>
+    </div>
+    <div class="pb-item">
+      <div class="pb-label">Sections Approved</div>
+      <div class="pb-value" id="count-approved">—<span> sec</span></div>
+      <div class="pb-bar-wrap"><div class="pb-bar green" id="bar-approved" style="width:0%"></div></div>
+    </div>
+    <div class="pb-item">
+      <div class="pb-label">Awaiting Client Input</div>
+      <div class="pb-value" id="count-blocked">—<span> sec</span></div>
+      <div class="pb-bar-wrap"><div class="pb-bar amber" id="bar-blocked" style="width:0%"></div></div>
+    </div>
+    <div class="pb-item">
+      <div class="pb-label">Content Available</div>
+      <div class="pb-value" id="count-ready">—<span>%</span></div>
+      <div class="pb-bar-wrap"><div class="pb-bar" id="bar-ready" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- WRITERS -->
+  <div class="writers-row" id="writersRow"></div>
+
+  <!-- PAGE CARDS -->
+  <div class="section-hdr">
+    <h2>Pages — Content Status</h2>
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('ready',this)">🟢 Ready</button>
+      <button class="filter-btn" onclick="setFilter('blocked',this)">🔴 Blocked</button>
+      <button class="filter-btn" onclick="setFilter('review',this)">👀 In Review</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="leg-item"><span class="leg-dot" style="background:var(--green)"></span>Approved</span>
+    <span class="leg-item"><span class="leg-dot" style="background:var(--purple)"></span>In Progress</span>
+    <span class="leg-item"><span class="leg-dot" style="background:var(--amber)"></span>In Review</span>
+    <span class="leg-item"><span class="leg-dot" style="background:var(--red);opacity:.5"></span>Blocked</span>
+    <span class="leg-item"><span class="leg-dot" style="background:#DDD"></span>Not Started</span>
+  </div>
+
+  <div class="pages-grid" id="pagesGrid"></div>
+</main>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal">
+    <div class="modal-hdr">
+      <div class="modal-hdr-top">
+        <div>
+          <div class="modal-title" id="modal-title">Page</div>
+          <div class="modal-pid" id="modal-pid"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-progress" id="modal-progress"></div>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const FILE_ID="VceArlBVcs2I2WN9lGDRH3";
+const FIGMA_BASE=`https://www.figma.com/design/${FILE_ID}/JAYASOM-02?node-id=`;
+const NO_FRAME=null;
+function furl(n){return FIGMA_BASE+n.replace(":","-")}
+
+const FIGMA={
+  "HM-01":furl("505:1950"),"AB-01":furl("734:1544"),"CT-02":NO_FRAME,
+  "CT-01":furl("687:6441"),"DS-00":furl("773:36"),"AM-01":furl("306:2"),
+  "AM-02":furl("636:2562"),"WS-01":NO_FRAME,"RM-01":NO_FRAME,"RM-[T]":NO_FRAME,
+  "CU-01":NO_FRAME,"FM-01":NO_FRAME,"JA-01":furl("800:56"),"RV-01":furl("778:1988"),
+  "RV-02":furl("778:3265"),"GA-01":furl("778:2471"),"GA-[T]":furl("778:2471"),
+  "RV-ALL":furl("778:3265"),"WL-01":furl("707:342"),"WL-[T]":furl("708:875"),
+  "WA-[T]":NO_FRAME,"RS-01":furl("687:7162"),"RS-02":furl("687:7549"),
+  "RS-03":furl("687:6436"),"RS-AM-01":furl("687:7549"),"RS-AM-02":furl("687:7549"),
+  "RS-09":furl("687:7549"),"RS-07":furl("687:7162"),"RS-10":furl("687:7162"),
+};
+
+// Status options for sections — randomly seeded for demo (replace with Sheet data)
+const STATUSES=["not-started","not-started","not-started","blocked","blocked","in-progress","review","approved"];
+function randStatus(seed,blocked){
+  if(blocked) return Math.random()<.6?"blocked":"not-started";
+  const r=Math.random();
+  if(r<.18) return "approved";
+  if(r<.30) return "review";
+  if(r<.45) return "in-progress";
+  return "not-started";
+}
+
+const PAGES=[
+  {id:1,name:"Home",pid:"HM-01",owners:["Sean","Karen"],
+   sections:[
+    {s:"Hero",o:"Sean",blocked:false},{s:"Brand Welcome",o:"Sean",blocked:false},
+    {s:"AMAALA Spotlight",o:"Sean",blocked:false},{s:"Wellness Pillars",o:"Sean",blocked:false},
+    {s:"Sustainability Teaser",o:"Sean",blocked:false},{s:"Testimonials",o:"Karen",blocked:true},
+    {s:"Newsletter CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:2,name:"About Us",pid:"AB-01",owners:["Sean","Karen"],
+   sections:[
+    {s:"Hero",o:"Sean",blocked:false},{s:"Brand Story",o:"Sean+Karen",blocked:true},
+    {s:"Mission & Vision",o:"Sean+Karen",blocked:true},{s:"Core Values",o:"Sean",blocked:false},
+    {s:"Sustainability",o:"Sean",blocked:false},{s:"Leadership Bios",o:"Karen",blocked:true},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:3,name:"Careers",pid:"CT-02",owners:["Sean","Karen"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Culture & Benefits",o:"Sean+Karen",blocked:true},
+    {s:"Job Listings",o:"Karen",blocked:true},{s:"Application Process",o:"Karen",blocked:true},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:4,name:"Contact Us",pid:"CT-01",owners:["Sean","Karen"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Contact Details",o:"Karen",blocked:true},
+    {s:"Reservations CTA",o:"Sean",blocked:false},{s:"Department Directory",o:"Karen",blocked:true},
+    {s:"Map Description",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:5,name:"Destinations Overview",pid:"DS-00",owners:["Sean"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Destination Cards",o:"Sean",blocked:false},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:6,name:"Amaala Landing Page",pid:"AM-01",owners:["Sean"],
+   sections:[
+    {s:"Hero",o:"Sean",blocked:false},{s:"Destination Overview",o:"Sean",blocked:false},
+    {s:"Location Description",o:"Sean",blocked:false},{s:"Key Highlights",o:"Sean",blocked:false},
+    {s:"Gallery Captions",o:"Sean",blocked:false},{s:"Section CTAs",o:"Sean",blocked:false},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:7,name:"A Day at Amaala",pid:"AM-02",owners:["Sean","Karen"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Morning Schedule",o:"Sean+Karen",blocked:true},
+    {s:"Afternoon Schedule",o:"Sean+Karen",blocked:true},{s:"Evening Schedule",o:"Sean+Karen",blocked:true},
+    {s:"Pullquote",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:8,name:"Wellbeing Spaces",pid:"WS-01",owners:["Sean","Nawaf"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"The Spa",o:"Sean+Nawaf",blocked:true},
+    {s:"Fitness Centre",o:"Sean+Nawaf",blocked:true},{s:"Hydrotherapy Suite",o:"Sean+Nawaf",blocked:true},
+    {s:"Yoga Pavilions",o:"Sean+Nawaf",blocked:true},{s:"Meditation Labyrinth",o:"Sean+Nawaf",blocked:true},
+    {s:"Wellness Trails",o:"Sean+Nawaf",blocked:true},{s:"Family Active Zone",o:"Sean+Nawaf",blocked:true},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:9,name:"Rooms & Villas Overview",pid:"RM-01",owners:["Sean","TBC"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Room Categories",o:"Sean+TBC",blocked:true},
+    {s:"Wellness Philosophy",o:"Sean",blocked:false},{s:"Booking CTA",o:"Sean",blocked:false},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:10,name:"Rooms & Villas Details",pid:"RM-[T]",owners:["Sean","TBC"],
+   sections:[
+    {s:"Room Name",o:"TBC",blocked:true},{s:"Room Overview",o:"Sean+TBC",blocked:true},
+    {s:"Amenities List",o:"TBC",blocked:true},{s:"Wellness Features",o:"Sean",blocked:true},
+    {s:"Gallery Captions",o:"Sean",blocked:true},{s:"Rates CTA",o:"Sean",blocked:false},
+    {s:"SEO Meta",o:"Sean",blocked:true}]},
+  {id:11,name:"Culinary Nourishment",pid:"CU-01",owners:["Sean","Nawaf"],
+   sections:[
+    {s:"Culinary Philosophy",o:"Sean",blocked:false},{s:"Nutrition Philosophy",o:"Sean",blocked:false},
+    {s:"Restaurant Concepts",o:"Sean+Nawaf",blocked:true},{s:"Chef Bios",o:"Nawaf",blocked:true},
+    {s:"Opening Hours",o:"Nawaf",blocked:true},{s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:12,name:"Families & Wellbeing",pid:"FM-01",owners:["Sean","Karen"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"0–5 Age Group",o:"Sean+Karen",blocked:true},
+    {s:"6–12 Age Group",o:"Sean+Karen",blocked:true},{s:"13–17 Age Group",o:"Sean+Karen",blocked:true},
+    {s:"Adults Section",o:"Sean",blocked:false},{s:"Family CTA",o:"Sean",blocked:false},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:13,name:"Journals / Stories",pid:"JA-01",owners:["Sean","Karen"],
+   sections:[
+    {s:"Section Intro",o:"Sean",blocked:false},{s:"Article Template",o:"Sean",blocked:false},
+    {s:"Journal Articles",o:"Karen",blocked:true},{s:"Author Bios",o:"Karen",blocked:true},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:14,name:"Retreats & Treatments",pid:"RV-01",owners:["Sean","Nawaf"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Retreats Overview",o:"Sean",blocked:false},
+    {s:"Detox & Reset",o:"Sean+Nawaf",blocked:true},{s:"Longevity Journey",o:"Sean+Nawaf",blocked:true},
+    {s:"Sleep Recovery",o:"Sean+Nawaf",blocked:true},{s:"Stress & Emotional",o:"Sean+Nawaf",blocked:true},
+    {s:"Women's Wellness",o:"Sean+Nawaf",blocked:true},{s:"Men's Vitality",o:"Sean+Nawaf",blocked:true},
+    {s:"Treatments Overview",o:"Sean",blocked:false},{s:"Treatments List",o:"Nawaf",blocked:true},
+    {s:"Booking CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:15,name:"Retreat Finder",pid:"RV-02",owners:["Sean"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Quiz Questions",o:"Sean",blocked:true},
+    {s:"Result Descriptions",o:"Sean",blocked:true},{s:"CTA",o:"Sean",blocked:false},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:16,name:"Group Activities",pid:"GA-01",owners:["Sean","Nawaf"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Activities Overview",o:"Sean",blocked:false},
+    {s:"Yoga Classes",o:"Sean+Nawaf",blocked:true},{s:"Dance Wellness",o:"Sean+Nawaf",blocked:true},
+    {s:"Breathwork",o:"Sean+Nawaf",blocked:true},{s:"Aqua Wellness",o:"Sean+Nawaf",blocked:true},
+    {s:"Beach Fitness",o:"Sean+Nawaf",blocked:true},{s:"Sound Journey",o:"Sean+Nawaf",blocked:true},
+    {s:"Activity Calendar",o:"Sean",blocked:true},{s:"Booking CTA",o:"Sean",blocked:false},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:17,name:"Activity Details",pid:"GA-[T]",owners:["Sean","Nawaf"],
+   sections:[
+    {s:"Activity Name",o:"Nawaf",blocked:true},{s:"Activity Description",o:"Sean+Nawaf",blocked:true},
+    {s:"Duration/Capacity",o:"Nawaf",blocked:true},{s:"What to Expect",o:"Sean",blocked:true},
+    {s:"Instructor Profile",o:"Nawaf",blocked:true},{s:"Booking CTA",o:"Sean",blocked:false},
+    {s:"SEO Meta",o:"Sean",blocked:true}]},
+  {id:18,name:"Retreats — All Props",pid:"RV-ALL",owners:["Sean","Karen"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Cross-Property List",o:"Sean+Karen",blocked:true},
+    {s:"CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:19,name:"Wellness Page",pid:"WL-01",owners:["Sean","Nawaf"],
+   sections:[
+    {s:"Hero",o:"Sean",blocked:false},{s:"Wellness Philosophy",o:"Sean",blocked:false},
+    {s:"Holistic Health",o:"Sean",blocked:false},{s:"Fitness & Movement",o:"Sean",blocked:false},
+    {s:"Nutrition",o:"Sean",blocked:false},{s:"Mind & Emotional",o:"Sean",blocked:false},
+    {s:"Spa & Aesthetic",o:"Sean",blocked:false},{s:"TAIM",o:"Sean+Nawaf",blocked:true},
+    {s:"CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:20,name:"Individual Wellness",pid:"WL-[T]",owners:["Sean","Nawaf"],
+   sections:[
+    {s:"Detail Name",o:"Sean+Nawaf",blocked:false},{s:"Overview",o:"Sean",blocked:false},
+    {s:"Key Benefits",o:"Sean+Nawaf",blocked:true},{s:"How It Works",o:"Sean+Nawaf",blocked:true},
+    {s:"Related CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:21,name:"Wellness Advisor",pid:"WA-[T]",owners:["Sean","TBC"],
+   sections:[
+    {s:"Advisor Name",o:"TBC",blocked:true},{s:"Credentials",o:"TBC",blocked:true},
+    {s:"Biography",o:"Sean+TBC",blocked:true},{s:"Specialisms",o:"TBC",blocked:true},
+    {s:"Philosophy",o:"Sean+TBC",blocked:true},{s:"Advisor Quote",o:"TBC",blocked:true},
+    {s:"SEO Meta",o:"Sean",blocked:true}]},
+  {id:22,name:"Residences Overview",pid:"RS-01",owners:["Sean"],
+   sections:[
+    {s:"Hero",o:"Sean",blocked:false},{s:"Overview Intro",o:"Sean",blocked:false},
+    {s:"Residence Types",o:"Sean+TBC",blocked:true},{s:"Key Selling Points",o:"Sean",blocked:false},
+    {s:"Enquiry CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:23,name:"Why Jayasom Residences",pid:"RS-02",owners:["Sean","Karen"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Lifestyle Benefits",o:"Sean",blocked:false},
+    {s:"Investment Rationale",o:"Sean+Karen",blocked:true},{s:"Differentiators",o:"Sean",blocked:false},
+    {s:"Testimonials",o:"Karen",blocked:true},{s:"CTA",o:"Sean",blocked:false},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:24,name:"Residential Community",pid:"RS-03",owners:["Sean","Karen"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Community Description",o:"Sean",blocked:false},
+    {s:"Shared Amenities",o:"Karen",blocked:true},{s:"Community Events",o:"Karen",blocked:true},
+    {s:"Master Plan",o:"Sean+Karen",blocked:true},{s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:25,name:"Amaala Residences Ovw",pid:"RS-AM-01",owners:["Sean","TBC"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Residence Cards",o:"Sean+TBC",blocked:true},
+    {s:"Key Features",o:"Sean+TBC",blocked:true},{s:"Location & Views",o:"Sean",blocked:false},
+    {s:"CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:26,name:"Amaala Residences Specs",pid:"RS-AM-02",owners:["Sean","TBC"],
+   sections:[
+    {s:"Specs Intro",o:"Sean",blocked:false},{s:"Technical Specs",o:"TBC",blocked:true},
+    {s:"Materials & Finishes",o:"TBC",blocked:true},{s:"Floor Plans",o:"Sean+TBC",blocked:true},
+    {s:"Download CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:27,name:"Rental Program",pid:"RS-09",owners:["Sean","Karen"],
+   sections:[
+    {s:"Programme Intro",o:"Sean",blocked:false},{s:"How It Works",o:"Sean+Karen",blocked:true},
+    {s:"Yield Information",o:"Karen",blocked:true},{s:"Management Services",o:"Karen",blocked:true},
+    {s:"Eligibility",o:"Karen",blocked:true},{s:"Enquiry CTA",o:"Sean",blocked:false},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:28,name:"Master Plans",pid:"RS-07",owners:["Sean","TBC"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Plan Descriptions",o:"Sean+TBC",blocked:true},
+    {s:"Zone Names",o:"TBC",blocked:true},{s:"Download CTA",o:"Sean",blocked:false},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+  {id:29,name:"Investment & Ownership",pid:"RS-10",owners:["Sean","Karen"],
+   sections:[
+    {s:"Page Intro",o:"Sean",blocked:false},{s:"Ownership Structure",o:"Sean+Karen",blocked:true},
+    {s:"Investment Terms",o:"Karen",blocked:true},{s:"Ownership Benefits",o:"Sean",blocked:true},
+    {s:"Legal Notes",o:"Karen",blocked:true},{s:"Enquiry CTA",o:"Sean",blocked:false},
+    {s:"SEO Meta",o:"Sean",blocked:false}]},
+];
+
+// Assign mock statuses
+PAGES.forEach(p=>p.sections.forEach(s=>{
+  s.status=s.blocked
+    ?(Math.random()<.15?"in-progress":"blocked")
+    :(["approved","approved","approved","in-progress","review","not-started"][Math.floor(Math.random()*6)]);
+}));
+
+// ── COMPUTE STATS ─────────────────────────────────────────────────────────────
+function computeStats(){
+  let totalSec=0,approvedSec=0,blockedSec=0,readySec=0;
+  PAGES.forEach(p=>{
+    p.sections.forEach(s=>{
+      totalSec++;
+      if(s.status==="approved") approvedSec++;
+      if(s.status==="blocked") blockedSec++;
+      if(!s.blocked) readySec++;
+    });
+  });
+  return{totalSec,approvedSec,blockedSec,readySec};
+}
+
+function computeWriterStats(){
+  const writers={Sean:{total:0,approved:0,review:0,in_progress:0,pending:0},
+                 Karen:{total:0,approved:0,review:0,in_progress:0,pending:0},
+                 Nawaf:{total:0,approved:0,review:0,in_progress:0,pending:0}};
+  PAGES.forEach(p=>p.sections.forEach(s=>{
+    const owners=s.o.split("+").map(x=>x.trim());
+    owners.forEach(o=>{
+      const key=o==="TBC"?null:o;
+      if(!key||!writers[key]) return;
+      writers[key].total++;
+      if(s.status==="approved") writers[key].approved++;
+      else if(s.status==="review") writers[key].review++;
+      else if(s.status==="in-progress") writers[key].in_progress++;
+      else writers[key].pending++;
+    });
+  }));
+  return writers;
+}
+
+function pageCompletion(page){
+  const total=page.sections.length;
+  const done=page.sections.filter(s=>s.status==="approved").length;
+  const avail=page.sections.filter(s=>!s.blocked).length;
+  return{pct:total>0?Math.round(done/total*100):0,done,total,avail,
+         availPct:total>0?Math.round(avail/total*100):0};
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  const stats=computeStats();
+  const overallPct=Math.round(stats.approvedSec/stats.totalSec*100);
+  const readyPct=Math.round(stats.readySec/stats.totalSec*100);
+
+  document.getElementById("pct-overall").innerHTML=`${overallPct}<span>%</span>`;
+  document.getElementById("count-approved").innerHTML=`${stats.approvedSec}<span> sec</span>`;
+  document.getElementById("count-blocked").innerHTML=`${stats.blockedSec}<span> sec</span>`;
+  document.getElementById("count-ready").innerHTML=`${readyPct}<span>%</span>`;
+
+  setTimeout(()=>{
+    document.getElementById("bar-overall").style.width=overallPct+"%";
+    document.getElementById("bar-approved").style.width=Math.round(stats.approvedSec/stats.totalSec*100)+"%";
+    document.getElementById("bar-blocked").style.width=Math.round(stats.blockedSec/stats.totalSec*100)+"%";
+    document.getElementById("bar-ready").style.width=readyPct+"%";
+  },100);
+
+
+
+  // Countdown
+  const launch=new Date("2026-03-31");const today=new Date();
+  const diff=Math.max(0,Math.ceil((launch-today)/(1000*60*60*24)));
+  document.getElementById("days-to-live").textContent=diff;
+  // Populate overview cards
+  const notStarted = PAGES.reduce((n,p)=>n+p.sections.filter(s=>s.status==="not-started").length,0);
+  const inProgress = PAGES.reduce((n,p)=>n+p.sections.filter(s=>s.status==="in-progress").length,0);
+  const inReview   = PAGES.reduce((n,p)=>n+p.sections.filter(s=>s.status==="review").length,0);
+  const approved2  = stats.approvedSec;
+  const total2     = stats.totalSec;
+  document.getElementById("ov-not-started").textContent=notStarted;
+  document.getElementById("ov-not-started-pct").textContent=Math.round(notStarted/total2*100)+"% of total sections";
+  document.getElementById("ov-in-progress").textContent=inProgress;
+  document.getElementById("ov-in-progress-pct").textContent=Math.round(inProgress/total2*100)+"% of total sections";
+  document.getElementById("ov-in-review").textContent=inReview;
+  document.getElementById("ov-approved").textContent=approved2;
+  document.getElementById("ov-approved-pct").textContent=Math.round(approved2/total2*100)+"% complete";
+  renderWriters();
+  renderPages();
+  document.getElementById("lastUpdated").textContent=new Date().toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+}
+
+function renderWriters(){
+  const ws=computeWriterStats();
+  const colors={Sean:"sean",Karen:"karen",Nawaf:"nawaf"};
+  const roles={Sean:"NEXA Copywriter",Karen:"Jayasom — Brand & Commercial",Nawaf:"Jayasom — Wellness & F&B"};
+  const html=Object.entries(ws).map(([name,d])=>{
+    const donePct=d.total>0?Math.round(d.approved/d.total*100):0;
+    const revPct=d.total>0?Math.round(d.review/d.total*100):0;
+    const inPct=d.total>0?Math.round(d.in_progress/d.total*100):0;
+    const pendPct=100-donePct-revPct-inPct;
+    return`<div class="writer-card ${colors[name]}">
+      <div class="writer-name">${name}</div>
+      <div class="writer-role">${roles[name]}</div>
+      <div class="writer-stats">
+        <div class="ws-item"><div class="ws-num done">${donePct}%</div><div class="ws-lbl">Approved</div></div>
+        <div class="ws-item"><div class="ws-num review">${revPct+inPct}%</div><div class="ws-lbl">In Progress</div></div>
+        <div class="ws-item"><div class="ws-num pending">${pendPct}%</div><div class="ws-lbl">Pending</div></div>
+      </div>
+      <div class="writer-bar">
+        <div class="wbar-seg wbar-done" style="width:${donePct}%"></div>
+        <div class="wbar-seg wbar-review" style="width:${revPct+inPct}%"></div>
+        <div class="wbar-seg wbar-pending" style="width:${pendPct}%"></div>
+      </div>
+      <div style="margin-top:6px;font-size:.68rem;color:var(--stone)">${d.total} sections assigned · ${d.approved} approved</div>
+    </div>`;
+  }).join("");
+  document.getElementById("writersRow").innerHTML=html;
+}
+
+let currentFilter="all";
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  renderPages();
+}
+
+function renderPages(){
+  const grid=document.getElementById("pagesGrid");
+  const filtered=PAGES.filter(p=>{
+    if(currentFilter==="all") return true;
+    const {pct}=pageCompletion(p);
+    if(currentFilter==="ready") return p.sections.some(s=>!s.blocked&&s.status!=="approved");
+    if(currentFilter==="blocked") return p.sections.some(s=>s.status==="blocked");
+    if(currentFilter==="review") return p.sections.some(s=>s.status==="review");
+    return true;
+  });
+
+  if(!filtered.length){grid.innerHTML='<div class="no-results">No pages match this filter.</div>';return;}
+
+  grid.innerHTML=filtered.map((p,i)=>{
+    const {pct,done,total,avail,availPct}=pageCompletion(p);
+    const figma=FIGMA[p.pid];
+    const pctClass=pct===0?"pct-0":pct<25?"pct-low":pct<60?"pct-mid":pct<90?"pct-high":"pct-done";
+    const ownersHtml=p.owners.map(o=>{
+      const cls=o==="Sean"?"sean":o==="Karen"?"karen":o==="Nawaf"?"nawaf":"tbc";
+      return`<span class="owner-tag ${cls}">${o}</span>`;
+    }).join("");
+    const dotsHtml=p.sections.map(s=>`<span class="sec-dot ${s.status}" title="${s.s}: ${s.status}"></span>`).join("");
+    const statsHtml=[
+      `<span class="stat-item"><span class="stat-dot" style="background:var(--green)"></span>${done} approved</span>`,
+      `<span class="stat-item"><span class="stat-dot" style="background:var(--red);opacity:.5"></span>${p.sections.filter(s=>s.status==="blocked").length} blocked</span>`,
+      `<span class="stat-item"><span class="stat-dot" style="background:var(--stone)"></span>${avail}/${total} sections available</span>`,
+    ].join("");
+    const figmaBtn=figma
+      ?`<a class="card-figma" href="${figma}" target="_blank">⬡ Figma</a>`
+      :`<span style="font-size:.68rem;color:var(--stone)">⚠️ No frame</span>`;
+    return`<div class="page-card" style="animation-delay:${i*.04}s" onclick="openModal(${p.id-1})">
+      <div class="card-top">
+        <span class="card-num">${String(p.id).padStart(2,"0")} · ${p.pid}</span>
+        ${figmaBtn}
+      </div>
+      <div class="card-name">${p.name}</div>
+      <div class="card-meta">${ownersHtml}</div>
+      <div class="progress-wrap">
+        <div class="progress-top">
+          <span class="progress-label">Content complete</span>
+          <span class="progress-pct">${pct}%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill ${pctClass}" style="width:${pct}%"></div></div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-top">
+          <span class="progress-label">Sections available to write</span>
+          <span class="progress-pct" style="color:var(--teal)">${availPct}%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:${availPct}%;background:var(--teal);opacity:.7"></div></div>
+      </div>
+      <div class="card-sections">${dotsHtml}</div>
+      <div class="card-stats">${statsHtml}</div>
+    </div>`;
+  }).join("");
+}
+
+function openModal(idx){
+  const p=PAGES[idx];
+  const {pct,done,total,availPct}=pageCompletion(p);
+  const figma=FIGMA[p.pid];
+  const pctClass=pct===0?"pct-0":pct<25?"pct-low":pct<60?"pct-mid":pct<90?"pct-high":"pct-done";
+
+  document.getElementById("modal-title").textContent=p.name;
+  document.getElementById("modal-pid").textContent=`${p.pid} · ${done} of ${total} sections approved · ${pct}% complete`;
+  document.getElementById("modal-progress").innerHTML=`
+    <div class="progress-wrap" style="margin:10px 0 0">
+      <div class="progress-top">
+        <span class="progress-label">Overall completion</span>
+        <span class="progress-pct">${pct}%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill ${pctClass}" style="width:${pct}%"></div></div>
+    </div>
+    <div class="progress-wrap" style="margin:8px 0 0">
+      <div class="progress-top">
+        <span class="progress-label">Available to write (unblocked)</span>
+        <span class="progress-pct" style="color:var(--teal)">${availPct}%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${availPct}%;background:var(--teal);opacity:.8"></div></div>
+    </div>
+    ${figma?`<div style="margin-top:10px"><a href="${figma}" target="_blank" style="font-size:.75rem;color:var(--purple)">⬡ Open Figma design for this page →</a></div>`:'<div style="margin-top:8px;font-size:.72rem;color:var(--stone)">⚠️ Figma frame not yet added for this page</div>'}
+  `;
+
+  const statusMeta={
+    "approved":{label:"Approved",col:"var(--green)"},
+    "review":{label:"In Review",col:"var(--amber)"},
+    "in-progress":{label:"In Progress",col:"var(--purple)"},
+    "blocked":{label:"Blocked",col:"var(--red)"},
+    "not-started":{label:"Not Started",col:"#CBD5E1"},
+  };
+  document.getElementById("modal-body").innerHTML=p.sections.map(s=>{
+    const m=statusMeta[s.status];
+    return`<div class="section-row">
+      <span class="sec-status-dot" style="background:${m.col}"></span>
+      <div class="sec-info">
+        <div class="sec-name">${s.s}</div>
+        <div class="sec-meta">${m.label} · Owner: ${s.o}${s.blocked?' · <span style="color:var(--red);font-size:.68rem">⚠ Awaiting client input</span>':''}</div>
+        <div class="sec-action">
+          <button class="btn-sm btn-approve" onclick="event.stopPropagation()">✓ Approve</button>
+          <button class="btn-sm btn-flag" onclick="event.stopPropagation()">⚑ Flag</button>
+          <button class="btn-sm" onclick="event.stopPropagation()">💬 Comment</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("overlay").classList.add("open");
+}
+
+function closeModal(){document.getElementById("overlay").classList.remove("open")}
+function refresh(){render()}
+
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+window.addEventListener("DOMContentLoaded",render);
+</script>
+</body>
+</html>
