@@ -422,6 +422,10 @@ async function loadSheetData(){
   rows.forEach(r=>{if(!r.c)return;const g=i=>i>=0&&r.c[i]?(r.c[i].f||r.c[i].v||""):"";const num=parseInt(g(iN))||0,name=g(iP);if(!name)return;const key=num?String(num):name;if(!map[key]){map[key]={id:num||Object.keys(map).length+1,name,pid:g(fi("page id","pid")),owners:new Set(),sections:[]};ord.push(key);}const pg=map[key];const own=(g(iO)||"").trim();if(own&&own!=="TBC")pg.owners.add(own);const sec=g(iS);if(sec){const st=normaliseStatus(g(iSt));pg.sections.push({s:sec,o:own||"TBC",status:st,blocked:st==="blocked"||(g(iB)||"").length>2});}});
   PAGES=ord.map(k=>{const pg=map[k];pg.owners=Array.from(pg.owners);if(!pg.owners.length)pg.owners=["TBC"];return pg;}).filter(p=>p.sections.length>0);
 }
+const FILE_ID="VceArlBVcs2I2WN9lGDRH3";
+const FIGMA_BASE=`https://www.figma.com/design/${FILE_ID}/JAYASOM-02?node-id=`;
+const NO_FRAME=null;
+function furl(n){return FIGMA_BASE+n.replace(":","-")}
 const FIGMA={
   "HM-01":furl("505:1950"),"AB-01":furl("734:1544"),"CT-02":NO_FRAME,
   "CT-01":furl("687:6441"),"DS-00":furl("773:36"),"AM-01":furl("306:2"),
