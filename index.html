@@ -291,13 +291,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--mist);color:var(--ink);mi
     <p class="overview-title">Content Overview</p>
     <p class="overview-sub">Jayasom Wellness Resort &middot; AMAALA, Red Sea &mdash; Website Content Delivery Portal</p>
     <div class="deadline-banner">
-      <div class="db-item"><span class="db-dot red"></span><div><span class="db-label">Client Input Due</span><span class="db-date">14 Mar 2026</span><span class="db-note">Karen & Nawaf all blocked sections</span></div></div>
+      <div class="db-item"><span class="db-dot red"></span><div><span class="db-label">Client Input Due</span><span class="db-date">TBC</span><span class="db-note">Karen, Nawaf, Kannan & Vazeeq</span></div></div>
       <div class="db-divider"></div>
-      <div class="db-item"><span class="db-dot amber"></span><div><span class="db-label">Sean Tier 1 Draft</span><span class="db-date">17 Mar 2026</span><span class="db-note">Home, About, Amaala, Wellness, Retreats</span></div></div>
+      <div class="db-item"><span class="db-dot amber"></span><div><span class="db-label">Sean Drafts Begin</span><span class="db-date">23 Mar 2026</span><span class="db-note">Home, About, Amaala, Wellness, Retreats</span></div></div>
       <div class="db-divider"></div>
-      <div class="db-item"><span class="db-dot green"></span><div><span class="db-label">Client Review Due</span><span class="db-date">26 Mar 2026</span><span class="db-note">Approvals & revisions</span></div></div>
+      <div class="db-item"><span class="db-dot green"></span><div><span class="db-label">Client Review Due</span><span class="db-date">1 Apr 2026</span><span class="db-note">Approvals & revisions</span></div></div>
       <div class="db-divider"></div>
-      <div class="db-item"><span class="db-dot purple"></span><div><span class="db-label">Go Live</span><span class="db-date">31 Mar 2026</span><span class="db-note">Full site launch</span></div></div>
+      <div class="db-item"><span class="db-dot purple"></span><div><span class="db-label">Go Live</span><span class="db-date">TBC</span><span class="db-note">Full site launch</span></div></div>
       <div class="db-divider"></div>
       <div class="countdown-block"><div class="countdown-num" id="days-to-live">—</div><div class="countdown-label">Days to Go Live</div></div>
     </div>
@@ -405,12 +405,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--mist);color:var(--ink);mi
 </div>
 
 <script>
-// ── DATA ─────────────────────────────────────────────────────────────────────
-const FILE_ID="VceArlBVcs2I2WN9lGDRH3";
-const FIGMA_BASE=`https://www.figma.com/design/${FILE_ID}/JAYASOM-02?node-id=`;
-const NO_FRAME=null;
-function furl(n){return FIGMA_BASE+n.replace(":","-")}
 
+const SHEET_ID='1T3pCaz_QpW-5KU7hknqMrS_5KSCXmKeVV2Ln-poN4UY';
+const SHEET_GID='1086265078';
+let PAGES=[];
+function normaliseStatus(r){const s=(r||"").toLowerCase();if(s.includes("approv"))return"approved";if(s.includes("review"))return"review";if(s.includes("progress"))return"in-progress";if(s.includes("block")||s.includes("awaiting"))return"blocked";return"not-started";}
+async function loadSheetData(){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}&headers=3`;
+  const text=await(await fetch(url)).text();
+  const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  const cols=json.table.cols,rows=json.table.rows;
+  const cm={};cols.forEach((c,i)=>{cm[(c.label||"").toLowerCase().trim()]=i;});
+  const fi=(...ks)=>{for(const k of ks){if(cm[k]!==undefined)return cm[k];const m=Object.keys(cm).find(l=>l.includes(k));if(m)return cm[m];}return -1;};
+  const iN=fi("page #"),iP=fi("page name","page-section"),iS=fi("section"),iO=fi("content owner"),iSt=fi("status"),iB=fi("blocking","input required");
+  const map={},ord=[];
+  rows.forEach(r=>{if(!r.c)return;const g=i=>i>=0&&r.c[i]?(r.c[i].f||r.c[i].v||""):"";const num=parseInt(g(iN))||0,name=g(iP);if(!name)return;const key=num?String(num):name;if(!map[key]){map[key]={id:num||Object.keys(map).length+1,name,pid:g(fi("page id","pid")),owners:new Set(),sections:[]};ord.push(key);}const pg=map[key];const own=(g(iO)||"").trim();if(own&&own!=="TBC")pg.owners.add(own);const sec=g(iS);if(sec){const st=normaliseStatus(g(iSt));pg.sections.push({s:sec,o:own||"TBC",status:st,blocked:st==="blocked"||(g(iB)||"").length>2});}});
+  PAGES=ord.map(k=>{const pg=map[k];pg.owners=Array.from(pg.owners);if(!pg.owners.length)pg.owners=["TBC"];return pg;}).filter(p=>p.sections.length>0);
+}
 const FIGMA={
   "HM-01":furl("505:1950"),"AB-01":furl("734:1544"),"CT-02":NO_FRAME,
   "CT-01":furl("687:6441"),"DS-00":furl("773:36"),"AM-01":furl("306:2"),
@@ -422,190 +433,6 @@ const FIGMA={
   "RS-03":furl("687:6436"),"RS-AM-01":furl("687:7549"),"RS-AM-02":furl("687:7549"),
   "RS-09":furl("687:7549"),"RS-07":furl("687:7162"),"RS-10":furl("687:7162"),
 };
-
-// Status options for sections — randomly seeded for demo (replace with Sheet data)
-const STATUSES=["not-started","not-started","not-started","blocked","blocked","in-progress","review","approved"];
-function randStatus(seed,blocked){
-  if(blocked) return Math.random()<.6?"blocked":"not-started";
-  const r=Math.random();
-  if(r<.18) return "approved";
-  if(r<.30) return "review";
-  if(r<.45) return "in-progress";
-  return "not-started";
-}
-
-const PAGES=[
-  {id:1,name:"Home",pid:"HM-01",owners:["Sean","Karen"],
-   sections:[
-    {s:"Hero",o:"Sean",blocked:false},{s:"Brand Welcome",o:"Sean",blocked:false},
-    {s:"AMAALA Spotlight",o:"Sean",blocked:false},{s:"Wellness Pillars",o:"Sean",blocked:false},
-    {s:"Sustainability Teaser",o:"Sean",blocked:false},{s:"Testimonials",o:"Karen",blocked:true},
-    {s:"Newsletter CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:2,name:"About Us",pid:"AB-01",owners:["Sean","Karen"],
-   sections:[
-    {s:"Hero",o:"Sean",blocked:false},{s:"Brand Story",o:"Sean+Karen",blocked:true},
-    {s:"Mission & Vision",o:"Sean+Karen",blocked:true},{s:"Core Values",o:"Sean",blocked:false},
-    {s:"Sustainability",o:"Sean",blocked:false},{s:"Leadership Bios",o:"Karen",blocked:true},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:3,name:"Careers",pid:"CT-02",owners:["Sean","Karen"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Culture & Benefits",o:"Sean+Karen",blocked:true},
-    {s:"Job Listings",o:"Karen",blocked:true},{s:"Application Process",o:"Karen",blocked:true},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:4,name:"Contact Us",pid:"CT-01",owners:["Sean","Karen"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Contact Details",o:"Karen",blocked:true},
-    {s:"Reservations CTA",o:"Sean",blocked:false},{s:"Department Directory",o:"Karen",blocked:true},
-    {s:"Map Description",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:5,name:"Destinations Overview",pid:"DS-00",owners:["Sean"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Destination Cards",o:"Sean",blocked:false},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:6,name:"Amaala Landing Page",pid:"AM-01",owners:["Sean"],
-   sections:[
-    {s:"Hero",o:"Sean",blocked:false},{s:"Destination Overview",o:"Sean",blocked:false},
-    {s:"Location Description",o:"Sean",blocked:false},{s:"Key Highlights",o:"Sean",blocked:false},
-    {s:"Gallery Captions",o:"Sean",blocked:false},{s:"Section CTAs",o:"Sean",blocked:false},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:7,name:"A Day at Amaala",pid:"AM-02",owners:["Sean","Karen"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Morning Schedule",o:"Sean+Karen",blocked:true},
-    {s:"Afternoon Schedule",o:"Sean+Karen",blocked:true},{s:"Evening Schedule",o:"Sean+Karen",blocked:true},
-    {s:"Pullquote",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:8,name:"Wellbeing Spaces",pid:"WS-01",owners:["Sean","Nawaf"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"The Spa",o:"Sean+Nawaf",blocked:true},
-    {s:"Fitness Centre",o:"Sean+Nawaf",blocked:true},{s:"Hydrotherapy Suite",o:"Sean+Nawaf",blocked:true},
-    {s:"Yoga Pavilions",o:"Sean+Nawaf",blocked:true},{s:"Meditation Labyrinth",o:"Sean+Nawaf",blocked:true},
-    {s:"Wellness Trails",o:"Sean+Nawaf",blocked:true},{s:"Family Active Zone",o:"Sean+Nawaf",blocked:true},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:9,name:"Rooms & Villas Overview",pid:"RM-01",owners:["Sean","TBC"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Room Categories",o:"Sean+TBC",blocked:true},
-    {s:"Wellness Philosophy",o:"Sean",blocked:false},{s:"Booking CTA",o:"Sean",blocked:false},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:10,name:"Rooms & Villas Details",pid:"RM-[T]",owners:["Sean","TBC"],
-   sections:[
-    {s:"Room Name",o:"TBC",blocked:true},{s:"Room Overview",o:"Sean+TBC",blocked:true},
-    {s:"Amenities List",o:"TBC",blocked:true},{s:"Wellness Features",o:"Sean",blocked:true},
-    {s:"Gallery Captions",o:"Sean",blocked:true},{s:"Rates CTA",o:"Sean",blocked:false},
-    {s:"SEO Meta",o:"Sean",blocked:true}]},
-  {id:11,name:"Culinary Nourishment",pid:"CU-01",owners:["Sean","Nawaf"],
-   sections:[
-    {s:"Culinary Philosophy",o:"Sean",blocked:false},{s:"Nutrition Philosophy",o:"Sean",blocked:false},
-    {s:"Restaurant Concepts",o:"Sean+Nawaf",blocked:true},{s:"Chef Bios",o:"Nawaf",blocked:true},
-    {s:"Opening Hours",o:"Nawaf",blocked:true},{s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:12,name:"Families & Wellbeing",pid:"FM-01",owners:["Sean","Karen"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"0–5 Age Group",o:"Sean+Karen",blocked:true},
-    {s:"6–12 Age Group",o:"Sean+Karen",blocked:true},{s:"13–17 Age Group",o:"Sean+Karen",blocked:true},
-    {s:"Adults Section",o:"Sean",blocked:false},{s:"Family CTA",o:"Sean",blocked:false},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:13,name:"Journals / Stories",pid:"JA-01",owners:["Sean","Karen"],
-   sections:[
-    {s:"Section Intro",o:"Sean",blocked:false},{s:"Article Template",o:"Sean",blocked:false},
-    {s:"Journal Articles",o:"Karen",blocked:true},{s:"Author Bios",o:"Karen",blocked:true},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:14,name:"Retreats & Treatments",pid:"RV-01",owners:["Sean","Nawaf"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Retreats Overview",o:"Sean",blocked:false},
-    {s:"Detox & Reset",o:"Sean+Nawaf",blocked:true},{s:"Longevity Journey",o:"Sean+Nawaf",blocked:true},
-    {s:"Sleep Recovery",o:"Sean+Nawaf",blocked:true},{s:"Stress & Emotional",o:"Sean+Nawaf",blocked:true},
-    {s:"Women's Wellness",o:"Sean+Nawaf",blocked:true},{s:"Men's Vitality",o:"Sean+Nawaf",blocked:true},
-    {s:"Treatments Overview",o:"Sean",blocked:false},{s:"Treatments List",o:"Nawaf",blocked:true},
-    {s:"Booking CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:15,name:"Retreat Finder",pid:"RV-02",owners:["Sean"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Quiz Questions",o:"Sean",blocked:true},
-    {s:"Result Descriptions",o:"Sean",blocked:true},{s:"CTA",o:"Sean",blocked:false},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:16,name:"Group Activities",pid:"GA-01",owners:["Sean","Nawaf"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Activities Overview",o:"Sean",blocked:false},
-    {s:"Yoga Classes",o:"Sean+Nawaf",blocked:true},{s:"Dance Wellness",o:"Sean+Nawaf",blocked:true},
-    {s:"Breathwork",o:"Sean+Nawaf",blocked:true},{s:"Aqua Wellness",o:"Sean+Nawaf",blocked:true},
-    {s:"Beach Fitness",o:"Sean+Nawaf",blocked:true},{s:"Sound Journey",o:"Sean+Nawaf",blocked:true},
-    {s:"Activity Calendar",o:"Sean",blocked:true},{s:"Booking CTA",o:"Sean",blocked:false},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:17,name:"Activity Details",pid:"GA-[T]",owners:["Sean","Nawaf"],
-   sections:[
-    {s:"Activity Name",o:"Nawaf",blocked:true},{s:"Activity Description",o:"Sean+Nawaf",blocked:true},
-    {s:"Duration/Capacity",o:"Nawaf",blocked:true},{s:"What to Expect",o:"Sean",blocked:true},
-    {s:"Instructor Profile",o:"Nawaf",blocked:true},{s:"Booking CTA",o:"Sean",blocked:false},
-    {s:"SEO Meta",o:"Sean",blocked:true}]},
-  {id:18,name:"Retreats — All Props",pid:"RV-ALL",owners:["Sean","Karen"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Cross-Property List",o:"Sean+Karen",blocked:true},
-    {s:"CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:19,name:"Wellness Page",pid:"WL-01",owners:["Sean","Nawaf"],
-   sections:[
-    {s:"Hero",o:"Sean",blocked:false},{s:"Wellness Philosophy",o:"Sean",blocked:false},
-    {s:"Holistic Health",o:"Sean",blocked:false},{s:"Fitness & Movement",o:"Sean",blocked:false},
-    {s:"Nutrition",o:"Sean",blocked:false},{s:"Mind & Emotional",o:"Sean",blocked:false},
-    {s:"Spa & Aesthetic",o:"Sean",blocked:false},{s:"TAIM",o:"Sean+Nawaf",blocked:true},
-    {s:"CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:20,name:"Individual Wellness",pid:"WL-[T]",owners:["Sean","Nawaf"],
-   sections:[
-    {s:"Detail Name",o:"Sean+Nawaf",blocked:false},{s:"Overview",o:"Sean",blocked:false},
-    {s:"Key Benefits",o:"Sean+Nawaf",blocked:true},{s:"How It Works",o:"Sean+Nawaf",blocked:true},
-    {s:"Related CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:21,name:"Wellness Advisor",pid:"WA-[T]",owners:["Sean","TBC"],
-   sections:[
-    {s:"Advisor Name",o:"TBC",blocked:true},{s:"Credentials",o:"TBC",blocked:true},
-    {s:"Biography",o:"Sean+TBC",blocked:true},{s:"Specialisms",o:"TBC",blocked:true},
-    {s:"Philosophy",o:"Sean+TBC",blocked:true},{s:"Advisor Quote",o:"TBC",blocked:true},
-    {s:"SEO Meta",o:"Sean",blocked:true}]},
-  {id:22,name:"Residences Overview",pid:"RS-01",owners:["Sean"],
-   sections:[
-    {s:"Hero",o:"Sean",blocked:false},{s:"Overview Intro",o:"Sean",blocked:false},
-    {s:"Residence Types",o:"Sean+TBC",blocked:true},{s:"Key Selling Points",o:"Sean",blocked:false},
-    {s:"Enquiry CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:23,name:"Why Jayasom Residences",pid:"RS-02",owners:["Sean","Karen"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Lifestyle Benefits",o:"Sean",blocked:false},
-    {s:"Investment Rationale",o:"Sean+Karen",blocked:true},{s:"Differentiators",o:"Sean",blocked:false},
-    {s:"Testimonials",o:"Karen",blocked:true},{s:"CTA",o:"Sean",blocked:false},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:24,name:"Residential Community",pid:"RS-03",owners:["Sean","Karen"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Community Description",o:"Sean",blocked:false},
-    {s:"Shared Amenities",o:"Karen",blocked:true},{s:"Community Events",o:"Karen",blocked:true},
-    {s:"Master Plan",o:"Sean+Karen",blocked:true},{s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:25,name:"Amaala Residences Ovw",pid:"RS-AM-01",owners:["Sean","TBC"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Residence Cards",o:"Sean+TBC",blocked:true},
-    {s:"Key Features",o:"Sean+TBC",blocked:true},{s:"Location & Views",o:"Sean",blocked:false},
-    {s:"CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:26,name:"Amaala Residences Specs",pid:"RS-AM-02",owners:["Sean","TBC"],
-   sections:[
-    {s:"Specs Intro",o:"Sean",blocked:false},{s:"Technical Specs",o:"TBC",blocked:true},
-    {s:"Materials & Finishes",o:"TBC",blocked:true},{s:"Floor Plans",o:"Sean+TBC",blocked:true},
-    {s:"Download CTA",o:"Sean",blocked:false},{s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:27,name:"Rental Program",pid:"RS-09",owners:["Sean","Karen"],
-   sections:[
-    {s:"Programme Intro",o:"Sean",blocked:false},{s:"How It Works",o:"Sean+Karen",blocked:true},
-    {s:"Yield Information",o:"Karen",blocked:true},{s:"Management Services",o:"Karen",blocked:true},
-    {s:"Eligibility",o:"Karen",blocked:true},{s:"Enquiry CTA",o:"Sean",blocked:false},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:28,name:"Master Plans",pid:"RS-07",owners:["Sean","TBC"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Plan Descriptions",o:"Sean+TBC",blocked:true},
-    {s:"Zone Names",o:"TBC",blocked:true},{s:"Download CTA",o:"Sean",blocked:false},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-  {id:29,name:"Investment & Ownership",pid:"RS-10",owners:["Sean","Karen"],
-   sections:[
-    {s:"Page Intro",o:"Sean",blocked:false},{s:"Ownership Structure",o:"Sean+Karen",blocked:true},
-    {s:"Investment Terms",o:"Karen",blocked:true},{s:"Ownership Benefits",o:"Sean",blocked:true},
-    {s:"Legal Notes",o:"Karen",blocked:true},{s:"Enquiry CTA",o:"Sean",blocked:false},
-    {s:"SEO Meta",o:"Sean",blocked:false}]},
-];
-
-// Assign mock statuses
-PAGES.forEach(p=>p.sections.forEach(s=>{
-  s.status=s.blocked
-    ?(Math.random()<.15?"in-progress":"blocked")
-    :(["approved","approved","approved","in-progress","review","not-started"][Math.floor(Math.random()*6)]);
-}));
 
 // ── COMPUTE STATS ─────────────────────────────────────────────────────────────
 function computeStats(){
@@ -669,7 +496,7 @@ function render(){
 
 
   // Countdown
-  const launch=new Date("2026-03-31");const today=new Date();
+  const launch=new Date("2026-04-01");const today=new Date();
   const diff=Math.max(0,Math.ceil((launch-today)/(1000*60*60*24)));
   document.getElementById("days-to-live").textContent=diff;
   // Populate overview cards
@@ -836,10 +663,10 @@ function openModal(idx){
 }
 
 function closeModal(){document.getElementById("overlay").classList.remove("open")}
-function refresh(){render()}
+function refresh(){loadSheetData().then(()=>render()).catch(()=>render())}
 
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
-window.addEventListener("DOMContentLoaded",render);
+window.addEventListener("DOMContentLoaded",()=>loadSheetData().then(()=>render()).catch(e=>{console.error(e);render();}));
 </script>
 </body>
 </html>
